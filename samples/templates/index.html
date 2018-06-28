@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JQuery AJAX 请求</title>
+    <script src="static/jquery.min.js">
+    </script>
+
+</head>
+<body>
+
+<h1>JQuery AJAX 请求</h1>
+
+<!--JQuery GET 请求:-->
+<div>
+    <p><span> <b>一. JQuery GET 请求:</b></span></p>
+    <button class="btn_get_string">通过 get 获取字符串</button>
+    <button class="btn_get_dict">通过 get 获取字典</button>
+    <button class="btn_get_list">通过 get 获取列表</button>
+</div>
+
+<!--JQuery Ajax 请求:-->
+<div>
+    <p><span> <b>二. JQuery Ajax 请求:</b></span></p>
+    <span>GET:</span>
+    <button class="btn_ajax_string">通过 ajax 获取字符串</button>
+    <button class="btn_ajax_dict">通过 ajax 获取字典</button>
+    <button class="btn_ajax_list">通过 ajax 获取列表</button>
+    <p></p>
+    <span>POST:</span>
+    <button class="btn_ajax_post_data">通过 ajax 发送数据</button>
+</div>
+
+<p>
+    <span>LOAD:</span>
+    <button class="btn_load_from_file">从文件中加载数据</button>
+    <button class="btn_load">加载一个GET请求</button>
+</p>
+
+<p>
+    <span id="load_result"></span>
+</p>
+
+<!--JQuery POST 请求-->
+<div>
+    <p><span> <b>三. JQuery POST 请求:</b></span></p>
+    <p>
+        <button class="btn_post">通过JQuery发送POST请求</button>
+    </p>
+    <p>表单:</p>
+    <!--通过 FORM 发送 POST 请求-->
+    <form action="/postform" method='post'>
+        姓名: <input type="text" name="name" value="毕小烦" id="input_name"><br>
+        年龄: <input type="text" name="age" value="18" id="input_age"><br>
+        <input type="submit" value="提交">
+    </form>
+
+    <p>
+        <button class="btn_post_form">通过JQuery获表单中的数据再发送POST请求</button>
+    </p>
+
+</div>
+
+<!--JQuery getJSON-->
+<div>
+    <p><span><b>四. JQuery getJSON 请求:</b></span></p>
+    <button class="btn_get_json">获取 JSON 数据</button><span id="btn_json_result"></span>
+</div>
+
+
+<div>
+    <p>
+        <button class="btn_crate_table">从后端获取数据再生成表格</button>
+    </p>
+    <div id="table_content"></div>
+</div>
+
+</body>
+<script>
+
+$(document).ready(function(){
+
+	<!--获取字符串-->
+	$(".btn_get_string").click(function(){
+		$.get("/getstr",function(data, status){
+			alert("数据: " + data + "\n状态: " + status);
+		});
+	});
+
+    <!--获取字典-->
+    $(".btn_get_dict").click(function(){
+		$.get("/getdict",function(data, status){
+			alert("name: " + data.name + " age:" + data.age);
+		});
+	});
+
+    $(".btn_get_list").click(function(){
+		$.get("/getlist",function(data, status){
+			alert("name: " + data);
+			var json = eval('(' + data + ')');
+            alert('name: ' + json[0] + ' age:' + json[1]);
+		});
+	});
+
+    <!--获取 ajax 字符串-->
+    $(".btn_ajax_string").click(function(){
+		$.ajax({url:"/getstr", data:{"name": "我是帅哥"},success:function(data){
+			alert(data);
+		}});
+	});
+
+     <!--通过 ajax 发送数据-->
+	    $(".btn_ajax_post_data").click(function(){
+		$.ajax({url:"/postdatafromajax", data:{"name": "一个帅哥"},success:function(data){
+			alert(data);
+		}});
+	});
+
+    <!--获取 ajax 字典-->
+    $(".btn_ajax_dict").click(function(){
+		$.ajax({url:"/getdict", success:function(data){
+			alert("name: " + data.name + " age:" + data.age);
+		}});
+	});
+
+    <!--获取一个列表-->
+    $(".btn_ajax_list").click(function(){
+		$.ajax({url:"/getlist", success:function(data){
+            alert("name: " + data);
+            var json = eval('(' + data + ')');
+            alert('name: ' + json[0] + ' age:' + json[1]);
+		}});
+	});
+    <!--通过 load 从文件中加载数据-->
+	$(".btn_load_from_file").click(function(){
+        $("#load_result").load("../static/data.txt");
+	});
+
+	<!--通过 load 加载数据-->
+	$(".btn_load").click(function(){
+        $("#load_result").load("/getstr");
+	});
+    <!--获取 JSON 数据-->
+    $(".btn_get_json").click(function(){
+        $.getJSON("/getdict",function(data){
+            $.each(data, function(key, value){
+                $("#btn_json_result").append(" Result: "+key + " "+value + " ");
+            });
+        });
+    });
+
+    <!--通过JQuery发送POST-->
+    $(".btn_post").click(function(){
+        $.post("/getdict", {"desc": "我是从前端来的数据", 'name': '无敌大帅哥'}, function(data, status){
+			alert("name: " + data.name + " age:" + data.age);
+        });
+    });
+
+        <!--获取form中的数据，然后发送POST请求-->
+        $(".btn_post_form").click(function(){
+        var name = $("#input_name").val();
+        var age = $("#input_age").val();
+
+        $.post("/postform", {"name": name, 'age': age}, function(data, status){
+			alert("name: " + data.name + "  age:" + data.age);
+        });
+    });
+
+    <!--从flask获取数据，并生成表格-->
+    $(".btn_crate_table").click(function(){
+
+        $.getJSON("/gettable",function(data){
+            if(data.length > 0)
+            {
+                $("#table_content").empty();
+                var table=$("<table border='1' cellspacing='0'> </table>");
+                table.appendTo($("#table_content"));
+
+                var trh=$("<tr></tr>");
+                trh.appendTo(table);
+
+                for(var h=0; h<data[0].length; h++)
+                {
+                    var th = $("<th>" +data[0][h]+"</th>");
+                    th.appendTo(trh);
+                }
+
+                for(var r=1; r<data.length; r++)
+                {
+                    var tr=$("<tr></tr>");
+                    tr.appendTo(table);
+
+                    for(var j=0;j<data[r].length;j++)
+                    {
+                        var td=$("<td>"+data[r][j]+"</td>");
+                        td.appendTo(tr);
+                    }
+                }
+            }
+
+        });
+
+    });
+
+});
+
+
+
+
+</script>
+</html>

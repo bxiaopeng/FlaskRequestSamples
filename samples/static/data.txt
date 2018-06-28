@@ -1,0 +1,1 @@
+我是 static/data.txt 文件里的内容
