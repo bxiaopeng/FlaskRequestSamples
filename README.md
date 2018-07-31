@@ -26,7 +26,7 @@ $ pipenv install --skip-lock
 macOS/Linux/Windows：
 
 ```shell
-$ python samples/run.py
+$ python request-examples/app.py
 ```
 
 或
@@ -41,7 +41,3 @@ $ bash run.sh
 ```shell
 http://127.0.0.1:7777/
 ```
-
-## 参考资料：
-
-- JQuery AJAX 请求相关示例参考 [FlaskConnectAjax](https://github.com/xmanrui/FlaskConnectAjax )
